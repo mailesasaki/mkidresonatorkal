@@ -3,7 +3,6 @@ import random
 import tensorflow as tf
 import logging
 import os, sys, glob
-from mkidreadout.configuration.powersweep.psmldata import *
 
 def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, useIQV, useVectIQV, centerIQV=False, normalizeBeforeCenter=False, randomFreqOffs=False):
     centerFreqList = np.atleast_1d(centerFreqList) #allow number too
@@ -73,7 +72,7 @@ def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, us
     #Need to select windows and normalize - we have freqInds and attenInds to do this for each window
 
     freqSlices = np.array(map(range, startFreqInds, endFreqInds))
-    attenSlices = np.tile(range(startAttenInd, endAttenInd), (len(centerFreqList), nFreqs, 1))
+    attenSlices = np.tile(range(startAttenInd, endAttenInd)), (len(centerFreqList), nFreqs, 1)
 
     iValList = np.transpose(iValList, (1, 0, 2)) #shape is now (nTone, nAtten, nFreq)
     qValList = np.transpose(qValList, (1, 0, 2))
@@ -132,8 +131,8 @@ def get_ml_model(modelDir=''):
     for param in tf.get_collection('mlDict'):
         mlDict[param.op.name] = param.eval(session=sess)
 
-    if not mlDict.has_key('normalizeBeforeCenter'): #maintain backwards compatibility with old models
-        print 'Adding key: normalizeBeforeCenter'
+    if 'normalizeBeforeCenter' not in mlDict: #maintain backwards compatibility with old models
+        print('Adding key: normalizeBeforeCenter')
         mlDict['normalizeBeforeCenter'] = False
 
     return mlDict, sess, graph, x_input, y_output, keep_prob, is_training
@@ -141,7 +140,7 @@ def get_ml_model(modelDir=''):
 
 def next_batch(trainImages, trainLabels, batch_size):
     '''selects a random batch of batch_size from trainImages and trainLabels'''
-    perm = random.sample(range(len(trainImages)), batch_size)
+    perm = random.sample(list(range(len(trainImages))), batch_size)
     trainImagesBatch = trainImages[perm]
     trainLabelsBatch = trainLabels[perm]
     #print 'next_batch trImshape', np.shape(trainImages)
