@@ -1,0 +1,9 @@
+name: mkidcal
+dependencies:
+    - ipython
+    - numpy
+    - scipy
+    - tensorflow
+    - keras
+    - matplotlib
+
