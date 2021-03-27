@@ -1,4 +1,7 @@
 name: mkidcal
+channels:
+  - defaults
+  - conda-forge
 dependencies:
     - ipython
     - numpy
@@ -6,4 +9,7 @@ dependencies:
     - tensorflow
     - keras
     - matplotlib
+    - ruamel.yaml
+    - multiprocessing-logging
+    - parse
 
