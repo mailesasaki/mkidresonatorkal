@@ -20,8 +20,8 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import mkidresonatorkal.tools as mlt
-import mkidcore.sweepdata as sd
+import mkidreadout.configuration.powersweep.ml.tools as mlt
+import mkidreadout.configuration.sweepdata as sd
 
 
 class WPSNeuralNet(object):
@@ -201,19 +201,19 @@ class WPSNeuralNet(object):
         model = tf.keras.models.Sequential([
             tf.keras.layers.Conv2D(filters=self.mlDict['num_filt1'], 
                                    kernel_size=self.mlDict['conv_win1'],
-                                   activation='relu',
+                                   activation=self.mlDict['activation'],
                                    input_shape=self.mlDict['input_shape'],
-                                   padding='same'),
+                                   padding=self.mlDict['padding']),
             tf.keras.layers.MaxPooling2D(pool_size=self.mlDict['n_pool1']), 
             tf.keras.layers.Conv2D(filters=self.mlDict['num_filt2'], 
                                    kernel_size=self.mlDict['conv_win2'],
-                                   activation='relu', 
-                                   padding='same'),
+                                   activation=self.mlDict['activation'], 
+                                   padding=self.mlDict['padding']),
             tf.keras.layers.MaxPooling2D(pool_size=self.mlDict['n_pool2']),
             tf.keras.layers.Conv2D(filters=self.mlDict['num_filt3'],
                                    kernel_size=self.mlDict['conv_win3'],
-                                   activation='relu',
-                                   padding='same'),
+                                   activation=self.mlDict['activation'],
+                                   padding=self.mlDict['padding']),
             tf.keras.layers.MaxPooling2D(pool_size=self.mlDict['n_pool3']),
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(units=self.mlDict['first_neuron_layer']),
@@ -249,6 +249,8 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
+        
+        #Save plots
 
         plt.plot(self.mlDict['trainepochs'], accuracy, 'b', label="Training Accuracy")
         plt.plot(self.mlDict['trainepochs'], val_accuracy, 'r', label="Validation Accuracy")
@@ -258,9 +260,14 @@ class WPSNeuralNet(object):
         
         print('Accuracy of model in training: ', accuracy, '%')
  
+        #Save plots
+        
         model.save()
+        
+        #Save to a file or directory
 
         tf.reset_default_graph()
+        
         self.sess.close()
 
             
