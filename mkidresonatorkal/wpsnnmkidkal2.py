@@ -249,22 +249,17 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        
-        #Save plots
+        plt.savefig('training_loss.png')
 
         plt.plot(self.mlDict['trainepochs'], accuracy, 'b', label="Training Accuracy")
         plt.plot(self.mlDict['trainepochs'], val_accuracy, 'r', label="Validation Accuracy")
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        
+        plt.savefig('training_accuracy.png')
         print('Accuracy of model in training: ', accuracy, '%')
- 
-        #Save plots
         
-        model.save()
-        
-        #Save to a file or directory
+        model.save('saved_model')
 
         tf.reset_default_graph()
         
