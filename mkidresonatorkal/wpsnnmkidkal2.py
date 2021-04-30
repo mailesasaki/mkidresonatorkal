@@ -23,7 +23,6 @@ import tensorflow as tf
 import mkidresonatorkal.tools as mlt
 import mkidcore.sweepdata as sd
 
-
 class WPSNeuralNet(object):
     
     def __init__(self, mlDict):
@@ -194,15 +193,15 @@ class WPSNeuralNet(object):
         print('Number of training images:', np.shape(trainImages), ' Number of test images:', np.shape(testImages))
 
         for k, v in self.mlDict.items():
-            tf.add_to_collection('mlDict', tf.constant(value=v, name=k))
+            tf.compat.v1.add_to_collection('mlDict', tf.constant(value=v, name=k))
 
-        tf.add_to_collection('meanTrainImage', tf.constant(value=self.meanTrainImage, name='image'))
+        tf.compat.v1.add_to_collection('meanTrainImage', tf.constant(value=self.meanTrainImage, name='image'))
        
         model = tf.keras.models.Sequential([
             tf.keras.layers.Conv2D(filters=self.mlDict['num_filt1'], 
                                    kernel_size=self.mlDict['conv_win1'],
                                    activation=self.mlDict['activation'],
-                                   input_shape=self.mlDict['input_shape'],
+                                   input_shape=(7, 30, 3),
                                    padding=self.mlDict['padding']),
             tf.keras.layers.MaxPooling2D(pool_size=self.mlDict['n_pool1']), 
             tf.keras.layers.Conv2D(filters=self.mlDict['num_filt2'], 
@@ -232,7 +231,7 @@ class WPSNeuralNet(object):
         fitmodel = model.fit(
             trainImages, trainLabels,
             validation_data = (testImages, testLabels),
-            epochs=self.mlDict['trainepochs']
+            epochs=self.mlDict['trainEpochs']
             )
         
         modelhyperparams = fitmodel.history
@@ -244,24 +243,27 @@ class WPSNeuralNet(object):
         print('Accuracy of model in testing: ', val_accuracy, '%')
         print('Loss of model in testing: ', val_loss, '%')
         
-        plt.plot(self.mlDict['trainepochs'], loss, 'b', label="Training Loss")
-        plt.plot(self.mlDict['trainepochs'], val_loss, 'r', label="Validation Loss")
+        Epochs = range(1, len(loss)+1)
+        
+        plt.plot(Epochs, loss, 'b', label="Training Loss")
+        plt.plot(Epochs, val_loss, 'r', label="Validation Loss")
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('training_loss.png')
+        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_loss2.png')
+        
+        plt.close()
 
-        plt.plot(self.mlDict['trainepochs'], accuracy, 'b', label="Training Accuracy")
-        plt.plot(self.mlDict['trainepochs'], val_accuracy, 'r', label="Validation Accuracy")
+        plt.plot(Epochs, accuracy, 'b', label="Training Accuracy")
+        plt.plot(Epochs, val_accuracy, 'r', label="Validation Accuracy")
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('training_accuracy.png')
-        print('Accuracy of model in training: ', accuracy, '%')
-        
-        model.save('saved_model')
+        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_accuracy2.png')
 
-        tf.reset_default_graph()
+        return model.save('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model2')
+
+        tf.compat.v1.reset_default_graph()
         
         self.sess.close()
 
