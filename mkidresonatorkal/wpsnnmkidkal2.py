@@ -250,7 +250,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_loss2.png')
+        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_loss4.png')
         
         plt.close()
 
@@ -259,9 +259,9 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_accuracy2.png')
+        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_accuracy4.png')
 
-        return model.save('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model2')
+        return model.save('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model4')
 
         tf.compat.v1.reset_default_graph()
         
