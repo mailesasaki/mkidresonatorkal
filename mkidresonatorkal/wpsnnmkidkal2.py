@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import mkidresonatorkal.tools as mlt
 import mkidcore.sweepdata as sd
+import shutil
 
 class WPSNeuralNet(object):
     
@@ -64,9 +65,9 @@ class WPSNeuralNet(object):
             attenblock = np.tile(trainSweep.atten, (len(goodResMask),1))
             optAttenInds = np.argmin(np.abs(attenblock.T - trainMD.atten), axis=0)
             
-            if self.mlDict['trimAttens']:
-                goodResMask = goodResMask & ~(optAttenInds < self.mlDict['attenWinBelow'])
-                goodResMask = goodResMask & ~(optAttenInds >= (len(trainSweep.atten) - self.mlDict['attenWinAbove']))
+           
+            goodResMask = goodResMask & ~(optAttenInds < self.mlDict['attenWinBelow'])
+            goodResMask = goodResMask & ~(optAttenInds >= (len(trainSweep.atten) - self.mlDict['attenWinAbove']))
             #if self.mlDict['filterMaxedAttens']:
             #    maxAttenInd = np.argmax(trainSweep.atten)
             #    goodResMask = goodResMask & ~(optAttenInds==maxAttenInd)
@@ -263,6 +264,8 @@ class WPSNeuralNet(object):
 
         return model.save('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model4')
 
+        shutil.copyfile('/mnt/c/Users/autum/mkidresonatorkal/mkidresonatorkal/mlDictremovedheaders.cfg', '/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model4/mlDict_new.cfg')        
+        
         tf.compat.v1.reset_default_graph()
         
         self.sess.close()
