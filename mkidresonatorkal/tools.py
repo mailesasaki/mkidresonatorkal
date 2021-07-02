@@ -3,6 +3,8 @@ import random
 import tensorflow as tf
 import logging
 import os, sys, glob
+from mkidresonatorkal.python3readdict import ReadDict
+
 
 def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, useIQV, useVectIQV, centerIQV=False, normalizeBeforeCenter=False, randomFreqOffs=False):
     centerFreqList = np.atleast_1d(centerFreqList) #allow number too
@@ -110,32 +112,17 @@ def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, us
     return images, attens, toneFreqList
 
 def get_ml_model(modelDir=''):
-    modelList = glob.glob(os.path.join(modelDir, '*.meta'))
-    if len(modelList) > 1:
-        raise Exception('Multiple models (.meta files) found in directory: ' + modelDir)
-    elif len(modelList) == 0:
-        raise Exception('No models (.meta files) found in directory ' + modelDir)
-    model = modelList[0]
-    getLogger(__name__).info('Loading good model from %s', model)
-    sess = tf.Session()
-    saver = tf.train.import_meta_graph(model)
-    saver.restore(sess, tf.train.latest_checkpoint(os.path.dirname(model)))
+    new_model = tf.keras.models.load_model(modelDir)
 
-    graph = tf.get_default_graph()
-    x_input = graph.get_tensor_by_name('inputImage:0')
-    y_output = graph.get_tensor_by_name('outputLabel:0')
-    keep_prob = graph.get_tensor_by_name('keepProb:0')
-    is_training = graph.get_tensor_by_name('isTraining:0')
-
-    mlDict = {}
-    for param in tf.get_collection('mlDict'):
-        mlDict[param.op.name] = param.eval(session=sess)
+    mlDictFile = modelDir + '/mlDict_new.cfg'
+    mlDict = ReadDict()
+    mlDict.readFromFile(mlDictFile)
 
     if 'normalizeBeforeCenter' not in mlDict: #maintain backwards compatibility with old models
         print('Adding key: normalizeBeforeCenter')
         mlDict['normalizeBeforeCenter'] = False
 
-    return mlDict, sess, graph, x_input, y_output, keep_prob, is_training
+    return mlDict, new_model
 
 
 def next_batch(trainImages, trainLabels, batch_size):
