@@ -30,7 +30,7 @@ def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, us
                 max(0, startFreqInds[i]):endFreqInds[i]]) + max(0, startFreqInds[i])
 
     if randomFreqOffs:
-        centerFreqInds += int(nFreqs*np.random.random(centerFreqInds.shape) - nFreqs/2.)
+        centerFreqInds += int(nFreqs*np.random.random(centerFreqInds.shape) - nFreqs/2)
 
     startFreqInds = centerFreqInds - int(np.floor(nFreqs/2.))
     endFreqInds = centerFreqInds + int(np.ceil(nFreqs/2.))
@@ -74,7 +74,7 @@ def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, us
     #Need to select windows and normalize - we have freqInds and attenInds to do this for each window
 
     freqSlices = np.array(list(map(range, startFreqInds, endFreqInds)))
-    attenSlices = np.tile(range(startAttenInd, endAttenInd), (len(centerFreqList), nFreqs, 1))
+    attenSlices = np.tile(list(range(startAttenInd, endAttenInd)), (len(centerFreqList), nFreqs, 1))
 
     iValList = np.transpose(iValList, (1, 0, 2)) #shape is now (nTone, nAtten, nFreq)
     qValList = np.transpose(qValList, (1, 0, 2))
@@ -87,9 +87,9 @@ def makeWPSImageList(freqSweep, centerFreqList, centerAtten, nFreqs, nAttens, us
 
     if normalizeBeforeCenter:
         res_mag = np.sqrt(np.mean(iValList**2 + qValList**2, axis=2))
-        iValList = iValList.transpose((2, 0, 1))//res_mag #shape is (nFreq, nTone, nAtten)
-        qValList = qValList.transpose((2, 0, 1))//res_mag
-        iqVelList = iqVelList.transpose((2, 0, 1))//res_mag
+        iValList = iValList.transpose((2, 0, 1))/res_mag #shape is (nFreq, nTone, nAtten)
+        qValList = qValList.transpose((2, 0, 1))/res_mag
+        iqVelList = iqVelList.transpose((2, 0, 1))/res_mag
         iValList = iValList - np.mean(iValList, axis=0)
         qValList = qValList - np.mean(qValList, axis=0)
         iqVelList = iqVelList - np.mean(iqVelList, axis=0)
