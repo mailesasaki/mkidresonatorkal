@@ -17,17 +17,17 @@ import logging
 #import ipdb
 import matplotlib.pyplot as plt
 import skimage.feature as skf
-import mkidreadout.configuration.sweepdata as sd
-import mkidreadout.configuration.powersweep.ml.tools as mlt
+import mkidcore.sweepdata as sd
+import mkidresonatorkal.tools as mlt
 from mkidcore.corelog import getLogger
-from mkidreadout.configuration.powersweep.ml.wpsnn import N_CLASSES
+from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
 N_CPU = 3
 
 def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
-    mlDict, sess, graph, x_input, y_output, keep_prob, is_training = mlt.get_ml_model(modelDir)
+    mlDict, new_model = mlt.get_ml_model(modelDir)
     
     if freqStep is None:
         freqStep = freqSweep.freqStep
@@ -50,19 +50,21 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     if mlDict['useVectIQV']:
         nColors += 2
 
-    chunkSize = 5000#8000*N_CPU
+    chunkSize = 50#8000*N_CPU
+    #original: 5000
     #subChunkSize = np.round(float(chunkSize)/N_CPU).astype(int)
-    subChunkSize = 200
+    subChunkSize = 2
+    #original: 200
     imageList = np.zeros((chunkSize, mlDict['attenWinBelow'] + mlDict['attenWinAbove'] + 1, mlDict['freqWinSize'], nColors))
     labelsList = np.zeros((chunkSize, N_CLASSES))
-    toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep/2]
+    toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
     if N_CPU > 1:
         pool = multiprocessing.Pool(processes=N_CPU)
         freqSweepChunk = copy.copy(freqSweep)
 
     for attenInd in range(len(attens)):
         tstart = time.time()
-        for chunkInd in range(len(freqs)/chunkSize + 1):
+        for chunkInd in range(len(freqs)//chunkSize + 1):
             nFreqsInChunk = min(chunkSize, len(freqs) - chunkSize*chunkInd)
             nSubChunks = np.ceil(float(nFreqsInChunk)/subChunkSize).astype(int)
 
@@ -72,7 +74,7 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                             1+mlDict['attenWinBelow']+mlDict['attenWinAbove'], mlDict['useIQV'], mlDict['useVectIQV'],
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
             else:
-                freqList = freqs[range(chunkSize*chunkInd, chunkSize*chunkInd + nFreqsInChunk)]
+                freqList = freqs[list(range(chunkSize*chunkInd, chunkSize*chunkInd + nFreqsInChunk))]
                 toneIndLow = np.argmin(np.abs(freqList[0] - toneWinCenters))
                 toneIndHigh = np.argmin(np.abs(freqList[-1] - toneWinCenters)) + 1
                 freqSweepChunk.i = freqSweep.i[:, toneIndLow:toneIndHigh, :]
@@ -94,18 +96,20 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
                 imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
 
-            wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
-                    feed_dict={x_input: imageList[:nFreqsInChunk], keep_prob: 1, is_training: False})
-            print 'finished chunk', chunkInd, 'out of', len(freqs)/chunkSize
+            wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model.evaluate(imageList[:nFreqsInChunk])
+            #wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
+            #       feed_dict={x_input: imageList[:nFreqsInChunk], keep_prob: 1, is_training: False})
+    
+            print('finished chunk', chunkInd, 'out of', len(freqs)/chunkSize)
 
-        print 'atten:', attens[attenInd]
-        print ' took', time.time() - tstart, 'seconds'
+        print('atten:', attens[attenInd])
+        print(' took', time.time() - tstart, 'seconds')
 
     if N_CPU > 1:
         pool.close()
 
     tf.reset_default_graph()
-    sess.close()
+    
 
     return wpsImage, freqs, attens
 
@@ -167,12 +171,12 @@ def findResonators(wpsmap, freqs, attens, prominenceThresh=0.85, peakThresh=0.97
         resCoords = skf.peak_local_max(wpsmap[:,:,0], min_distance=minPeakDist, threshold_abs=peakThresh, exclude_border=False)
         resCoords = prominenceCut(wpsmap, resCoords, prominenceThresh)
         resMags = np.zeros(len(resCoords))
-        print 'Found', len(resCoords), 'peaks above', peakThresh
+        print('Found', len(resCoords), 'peaks above', peakThresh)
         for i in range(len(resMags)):
             resMags[i] = wpsmap[resCoords[i, 0], resCoords[i, 1], N_CLASSES]
         largestMagInds = np.argsort(resMags)[::-1]
         largestMagInds = largestMagInds[:nRes]
-        print 'Res mag cutoff:', resMags[largestMagInds[-1]]
+        print('Res mag cutoff:', resMags[largestMagInds[-1]])
         resCoords = resCoords[largestMagInds]
         #plt.hist(resMags, bins=30)
         #plt.show()
@@ -254,7 +258,7 @@ def prominenceCut(wpsmap, resCoords, minThresh=0.75):
 
     resCoords = np.delete(resCoords, indsToDelete, axis=0)
 
-    print 'Prominence cut deleted', len(indsToDelete), 'resonators'
+    print('Prominence cut deleted', len(indsToDelete), 'resonators')
 
     return resCoords
 
@@ -284,8 +288,8 @@ def runFullInference(inferenceData, model, peakThresh, prominenceThresh,
             + '_' + os.path.basename(model) + '.npz')
 
     if not os.path.isfile(wpsmapFile) or args.remake_wpsmap:
-        print wpsmapFile, 'not found'
-        print 'Generating new WPS map'
+        print(wpsmapFile, 'not found')
+        print('Generating new WPS map')
         freqSweep = sd.FreqSweep(inferenceData)
         wpsmap, freqs, attens = makeWPSMap(model, freqSweep)
 
@@ -293,7 +297,7 @@ def runFullInference(inferenceData, model, peakThresh, prominenceThresh,
             np.savez(wpsmapFile, wpsmap=wpsmap, freqs=freqs, attens=attens)
 
     else:
-        print 'Loading WPS map', wpsmapFile
+        print('Loading WPS map', wpsmapFile)
         f = np.load(wpsmapFile)
         wpsmap = f['wpsmap']
         freqs = f['freqs']
@@ -303,7 +307,6 @@ def runFullInference(inferenceData, model, peakThresh, prominenceThresh,
             peakThresh=peakThresh, nRes=nRes, attenGrad=attenBias, resMagCut=False)
 
     return resFreqs, resAttens, scores
-
 
 
 if __name__=='__main__':
@@ -323,8 +326,8 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     sweepFiles, paramDicts = sd.getSweepFilesFromPat(args.inferenceData)
-    print sweepFiles
-    print paramDicts
+    print(sweepFiles)
+    print(paramDicts)
 
     if args.metadata is None:
         args.metadata = os.path.join(os.path.dirname(args.inferenceData), 
@@ -360,5 +363,5 @@ if __name__=='__main__':
 
         mdOutFile = args.metadata.format(range=band, roach=roach, feedline=fl)
 
-        print 'Saving resonator metadata in:', mdOutFile
+        print('Saving resonator metadata in:', mdOutFile)
         saveMetadata(mdOutFile, resFreqs, resAttens, scores, fl, band)
