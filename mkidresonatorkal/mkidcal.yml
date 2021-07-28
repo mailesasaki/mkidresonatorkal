@@ -13,5 +13,5 @@ dependencies:
   - multiprocessing-logging
   - parse
   - shutil
-  
+  - scikit-image
   
