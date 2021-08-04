@@ -24,7 +24,7 @@ from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
-N_CPU = 3
+N_CPU = 1
 
 def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     mlDict, new_model = mlt.get_ml_model(modelDir)
@@ -50,10 +50,10 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     if mlDict['useVectIQV']:
         nColors += 2
 
-    chunkSize = 50#8000*N_CPU
+    chunkSize = 5000#8000*N_CPU
     #original: 5000
     #subChunkSize = np.round(float(chunkSize)/N_CPU).astype(int)
-    subChunkSize = 2
+    subChunkSize = 200
     #original: 200
     imageList = np.zeros((chunkSize, mlDict['attenWinBelow'] + mlDict['attenWinAbove'] + 1, mlDict['freqWinSize'], nColors))
     labelsList = np.zeros((chunkSize, N_CLASSES))
@@ -94,9 +94,13 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
 
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
-                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
-
-            wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model.evaluate(imageList[:nFreqsInChunk])
+                def main():
+                    imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                
+                if __name__ == '__main__':
+                    main()
+                
+            wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
             #wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
             #       feed_dict={x_input: imageList[:nFreqsInChunk], keep_prob: 1, is_training: False})
     
@@ -108,7 +112,7 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     if N_CPU > 1:
         pool.close()
 
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
     
 
     return wpsImage, freqs, attens
