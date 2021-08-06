@@ -165,7 +165,7 @@ def findResonators(wpsmap, freqs, attens, prominenceThresh=0.85, peakThresh=0.97
 
     """
 
-    minPeakDist /= np.diff(freqs)[0]
+    minPeakDist //= np.diff(freqs)[0]
     if attenGrad > 0:
         attenBias = np.linspace(0, -(len(attens)-1)*attenGrad, len(attens))
         wpsmap = (wpsmap.T + attenBias).T
@@ -329,10 +329,16 @@ if __name__=='__main__':
     parser.add_argument('-m', '--use-mag', action='store_true', help='Select N_RES resonators above peakThresh with largest loop size')
     args = parser.parse_args()
 
+    if os.path.isfile(args.inferenceData) == False:
+        raise Exception('Inference Data does not exist')
+        
+    if os.path.isdir(args.model) == False:
+        raise Exception('Model does not exist')
+        
     sweepFiles, paramDicts = sd.getSweepFilesFromPat(args.inferenceData)
     print(sweepFiles)
     print(paramDicts)
-
+    
     if args.metadata is None:
         args.metadata = os.path.join(os.path.dirname(args.inferenceData), 
                 os.path.basename(args.inferenceData).split('.')[0] + '_metadata.txt')
