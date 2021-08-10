@@ -24,7 +24,7 @@ from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
-N_CPU = 1
+N_CPU = 3
 
 def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     mlDict, new_model = mlt.get_ml_model(modelDir)
@@ -59,10 +59,10 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     labelsList = np.zeros((chunkSize, N_CLASSES))
     toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
     if N_CPU > 1:
-        #pool = multiprocessing.Pool(processes=N_CPU)
-        from multiprocessing import set_start_method
-        set_start_method("spawn")
-        pool = multiprocessing.get_context('spawn').Pool(processes=N_CPU)
+        pool = multiprocessing.Pool(processes=N_CPU)
+        #from multiprocessing import set_start_method
+        #set_start_method("spawn")
+        #pool = multiprocessing.get_context('spawn').Pool(processes=N_CPU)
 
         freqSweepChunk = copy.copy(freqSweep)
 
@@ -99,9 +99,9 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                 
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
                 
-                with multiprocessing.get_context('spawn').Pool(processes=N_CPU) as pool:
-                    imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
-                pool.close()
+                #with multiprocessing.get_context('spawn').Pool(processes=N_CPU) as pool:
+                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                
                 
             wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
             #wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
@@ -112,8 +112,8 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
         print('atten:', attens[attenInd])
         print(' took', time.time() - tstart, 'seconds')
 
-    #if N_CPU > 1:
-     #   pool.close()
+    if N_CPU > 1:
+        pool.close()
 
     tf.compat.v1.reset_default_graph()
     
