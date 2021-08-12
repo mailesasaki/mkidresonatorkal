@@ -59,10 +59,10 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     labelsList = np.zeros((chunkSize, N_CLASSES))
     toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
     if N_CPU > 1:
-        pool = multiprocessing.Pool(processes=N_CPU)
         #from multiprocessing import set_start_method
-        #set_start_method("spawn")
-        #pool = multiprocessing.get_context('spawn').Pool(processes=N_CPU)
+        #set_start_method("fork")
+        #pool = multiprocessing.get_context('fork').Pool(processes=N_CPU)
+        #pool = multiprocessing.Pool(processes=N_CPU)
 
         freqSweepChunk = copy.copy(freqSweep)
 
@@ -99,9 +99,10 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                 
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
                 
-                #with multiprocessing.get_context('spawn').Pool(processes=N_CPU) as pool:
-                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
-                
+                with multiprocessing.Pool(processes=N_CPU) as pool:
+                    pool = multiprocessing.Pool(processes=N_CPU)
+                    imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                pool.close()
                 
             wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
             #wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
@@ -112,8 +113,8 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
         print('atten:', attens[attenInd])
         print(' took', time.time() - tstart, 'seconds')
 
-    if N_CPU > 1:
-        pool.close()
+    #if N_CPU > 1:
+     #   pool.close()
 
     tf.compat.v1.reset_default_graph()
     
