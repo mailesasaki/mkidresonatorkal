@@ -8,7 +8,8 @@ with wide/power sweep data (collected using widesweep.freqSweep)
 import numpy as np
 import tensorflow as tf
 from functools import partial
-import multiprocessing
+#import multiprocessing
+from multiprocessing import set_start_method
 import os, sys, glob
 import time
 import copy
@@ -51,17 +52,16 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
         nColors += 2
 
     chunkSize = 5000#8000*N_CPU
-    #original: 5000
     #subChunkSize = np.round(float(chunkSize)/N_CPU).astype(int)
     subChunkSize = 200
-    #original: 200
     imageList = np.zeros((chunkSize, mlDict['attenWinBelow'] + mlDict['attenWinAbove'] + 1, mlDict['freqWinSize'], nColors))
     labelsList = np.zeros((chunkSize, N_CLASSES))
     toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
     if N_CPU > 1:
         #from multiprocessing import set_start_method
-        #set_start_method("fork")
-        #pool = multiprocessing.get_context('fork').Pool(processes=N_CPU)
+        #set_start_method("spawn")
+        from multiprocessing import get_context
+        pool = get_context('spawn').Pool(processes=N_CPU)
         #pool = multiprocessing.Pool(processes=N_CPU)
 
         freqSweepChunk = copy.copy(freqSweep)
@@ -98,10 +98,7 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
                 
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
-                
-                with multiprocessing.Pool(processes=N_CPU) as pool:
-                    pool = multiprocessing.Pool(processes=N_CPU)
-                    imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
                 pool.close()
                 
             wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
@@ -113,8 +110,8 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
         print('atten:', attens[attenInd])
         print(' took', time.time() - tstart, 'seconds')
 
-    #if N_CPU > 1:
-     #   pool.close()
+    if N_CPU > 1:
+        pool.close()
 
     tf.compat.v1.reset_default_graph()
     
@@ -350,8 +347,9 @@ if __name__=='__main__':
 
     elif not os.path.isabs(args.metadata):
         args.metadata = os.path.join(os.path.dirname(args.inferenceData), args.metadata)
-
-
+    
+    set_start_method('spawn')
+    
     for (sweepFile, paramDict) in zip(sweepFiles, paramDicts):
         resFreqs, resAttens, scores = runFullInference(sweepFile, args.model, args.peak_thresh, 
                     args.prominence_thresh, args.n_res, args.atten_bias, args.save_wpsmap, args.remake_wpsmap)
