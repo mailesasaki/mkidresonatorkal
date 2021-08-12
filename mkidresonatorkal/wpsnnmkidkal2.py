@@ -251,7 +251,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_loss8.png')
+        plt.savefig('~/training_loss8.png')
         
         plt.close()
 
@@ -260,11 +260,11 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/training_accuracy8.png')
+        plt.savefig('~/training_accuracy8.png')
 
-        model.save('/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model8')
+        model.save('~/saved_model2')
 
-        return shutil.copyfile('/mnt/c/Users/autum/mkidresonatorkal/mkidresonatorkal/mlDictremovedheaders.cfg', '/mnt/c/Users/autum/OneDrive/Desktop/Tensorflow Project/Tensorflow Models/saved_model8/mlDict_new.cfg')        
+        return shutil.copyfile('~/mkidresonatorkal/mkidresonatorkal/mlDictremovedheaders.cfg', '~/saved_model2/mlDict_new.cfg')        
         
         tf.compat.v1.reset_default_graph()
         
