@@ -251,7 +251,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('~/training_loss8.png')
+        plt.savefig('/home/msasaki/training_loss8.png')
         
         plt.close()
 
@@ -260,11 +260,11 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('~/training_accuracy8.png')
+        plt.savefig('/home/msasaki/training_accuracy8.png')
 
-        model.save('~/saved_model2')
+        model.save('/home/msasaki/saved_model2')
 
-        return shutil.copyfile('~/mkidresonatorkal/mkidresonatorkal/mlDictremovedheaders.cfg', '~/saved_model2/mlDict_new.cfg')        
+        return shutil.copyfile('/home/msasaki/mkidresonatorkal/mkidresonatorkal/mlDictremovedheaders.cfg', '/home/msasaki/saved_model2/mlDict_new.cfg')        
         
         tf.compat.v1.reset_default_graph()
         
