@@ -1,0 +1,54 @@
+modelDir: '/home/msasaki/fullval_final_4'
+modelName: 'fullval_final_4'
+
+comment: 'fullval49 clone'
+
+trainNPZ: 'fullval_final_4.npz'
+trainFileDir: '/home/msasaki'
+#Takes you to directory
+rawTrainFiles: ['psData_222.npz', 'psData_223.npz', 'psData_224.npz', 'psData_225.npz', 'psData_228.npz', 'psData_229.npz', 'psData_232.npz', 'psData_233.npz', 'psData_238.npz', 'psData_239.npz']
+rawTrainLabels: ['psData_222_metadata_out.txt', 'psData_223_metadata_out.txt', 'psData_224_metadata_out.txt', 'psData_225_metadata_out.txt', 'psData_228_metadata_out.txt', 'psData_229_metadata_out.txt', 'psData_232_metadata_out.txt', 'psData_233_metadata_out.txt', 'psData_238_metadata_out.txt', 'psData_239_metadata_out.txt']
+
+trimAttens: True
+filterMaxedAttens: True
+nImagesPerRes: 4
+trainUPThresh: 4
+trainSatThresh: 1
+useIQV: True
+useVectIQV: False
+trainCenterIQV: False
+randomizeTrainSatFreqOffs: True
+trainRandomFreqOffs: False
+trainSatFreqOffs: -100.e3
+centerDataset: False
+normalizeBeforeCenter: True
+useBatchNorm: True
+
+nAttens: 31
+freqWinSize: 30
+trainFrac: 0.9
+attenWinAbove: 3
+attenWinBelow: 3
+
+num_filt1: 40
+n_pool1: [1, 2]
+conv_win1: [5, 5]
+input_shape: (7, 30, 3)
+
+num_filt2: 70
+n_pool2: [1, 2]
+conv_win2: [3, 5]
+
+num_filt3: 90
+n_pool3: [1, 2]
+conv_win3: [1, 4]
+
+learning_rate: 1e-5
+trainEpochs: 50
+batchSize: 50
+keep_prob: 0.5
+overfitTest: False
+first_neuron_layer: 2520
+second_neuron_layer: 4
+activation: 'relu'
+padding: 'same'
