@@ -24,6 +24,9 @@ import mkidresonatorkal.tools as mlt
 import mkidcore.sweepdata as sd
 import shutil
 
+print(tf.__version__)
+print(tf.config.list_physical_devices())
+
 if tf.test.gpu_device_name(): 
     print('Default GPU Device:{}'.format(tf.test.gpu_device_name()))
 else:
