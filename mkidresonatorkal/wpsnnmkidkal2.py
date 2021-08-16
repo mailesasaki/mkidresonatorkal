@@ -24,6 +24,11 @@ import mkidresonatorkal.tools as mlt
 import mkidcore.sweepdata as sd
 import shutil
 
+if tf.test.gpu_device_name(): 
+    print('Default GPU Device:{}'.format(tf.test.gpu_device_name()))
+else:
+    print("Please install GPU version of TF")
+
 class WPSNeuralNet(object):
     
     def __init__(self, mlDict):
