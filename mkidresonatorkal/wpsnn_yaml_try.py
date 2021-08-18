@@ -1,9 +1,8 @@
 import wpsnnmkidkal2
-from mkidcore.config import ConfigThing
+import mkidcore.config as config
 
-mlDict = ConfigThing()
 mlDict_file = 'mlDict.yaml'
-mlDict.load(mlDict_file)
+mlDict = config.load(mlDict_file)
 
 trial1 = wpsnnmkidkal2.WPSNeuralNet(mlDict)
 trial1.initializeAndTrainModel()
