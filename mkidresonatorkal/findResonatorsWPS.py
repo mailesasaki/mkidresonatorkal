@@ -8,8 +8,8 @@ with wide/power sweep data (collected using widesweep.freqSweep)
 import numpy as np
 import tensorflow as tf
 from functools import partial
-#import multiprocessing
-from multiprocessing import set_start_method
+import multiprocessing
+#from multiprocessing import set_start_method
 import os, sys, glob
 import time
 import copy
@@ -60,9 +60,9 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     if N_CPU > 1:
         #from multiprocessing import set_start_method
         #set_start_method("spawn")
-        from multiprocessing import get_context
-        pool = get_context('spawn').Pool(processes=N_CPU)
-        #pool = multiprocessing.Pool(processes=N_CPU)
+        #from multiprocessing import get_context
+        #pool = get_context('spawn').Pool(processes=N_CPU)
+        pool = multiprocessing.Pool(processes=N_CPU)
 
         freqSweepChunk = copy.copy(freqSweep)
 
@@ -97,11 +97,18 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                             useIQV=mlDict['useIQV'], useVectIQV=mlDict['useVectIQV'],
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
                 
+                #process1 = processChunk(freqList[0:10])
+                #print(process1)
+                
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
+                #pool = multiprocessing.Pool(processes=N_CPU)
                 imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                #pool.close()
                 pool.close()
+                pool.join()
                 
             wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = new_model(imageList[:nFreqsInChunk])
+            
             #wpsImage[attenInd, chunkSize*chunkInd:chunkSize*chunkInd + nFreqsInChunk, :N_CLASSES] = sess.run(y_output, 
             #       feed_dict={x_input: imageList[:nFreqsInChunk], keep_prob: 1, is_training: False})
     
@@ -314,7 +321,6 @@ def runFullInference(inferenceData, model, peakThresh, prominenceThresh,
 
     return resFreqs, resAttens, scores
 
-
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='WPS ML Inference Script')
     parser.add_argument('model', help='Directory containing ML model')
@@ -348,7 +354,7 @@ if __name__=='__main__':
     elif not os.path.isabs(args.metadata):
         args.metadata = os.path.join(os.path.dirname(args.inferenceData), args.metadata)
     
-    set_start_method('spawn')
+    #set_start_method('spawn')
     
     for (sweepFile, paramDict) in zip(sweepFiles, paramDicts):
         resFreqs, resAttens, scores = runFullInference(sweepFile, args.model, args.peak_thresh, 
