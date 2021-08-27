@@ -25,7 +25,7 @@ from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
-N_CPU = 3
+N_CPU = 10
 
 def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     mlDict, new_model = mlt.get_ml_model(modelDir)
