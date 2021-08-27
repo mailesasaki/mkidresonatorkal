@@ -134,6 +134,7 @@ def makeImage(centerFreq, freqSweep, atten, freqWinSize, attenWinSize, useIQV, u
     return image
 
 def makeImageList(centerFreqList, freqSweep, atten, freqWinSize, attenWinSize, useIQV, useVectIQV, normalizeBeforeCenter):
+    print('makeImageList start')
     image, _, _, = mlt.makeWPSImageList(freqSweep, centerFreqList, atten, freqWinSize, attenWinSize, useIQV, useVectIQV,
             normalizeBeforeCenter=normalizeBeforeCenter) 
     print('makeImageList done!')
