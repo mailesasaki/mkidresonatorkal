@@ -77,6 +77,7 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                     imageList[i], _, _  = mlt.makeWPSImage(freqSweep, freqs[freqInd], attens[attenInd], mlDict['freqWinSize'],
                             1+mlDict['attenWinBelow']+mlDict['attenWinAbove'], mlDict['useIQV'], mlDict['useVectIQV'],
                             normalizeBeforeCenter=mlDict['normalizeBeforeCenter']) 
+                print('Done with image')
             else:
                 freqList = freqs[list(range(chunkSize*chunkInd, chunkSize*chunkInd + nFreqsInChunk))]
                 toneIndLow = np.argmin(np.abs(freqList[0] - toneWinCenters))
