@@ -130,11 +130,13 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
 def makeImage(centerFreq, freqSweep, atten, freqWinSize, attenWinSize, useIQV, useVectIQV, normalizeBeforeCenter):
     image, _, _, = mlt.makeWPSImage(freqSweep, centerFreq, atten, freqWinSize, attenWinSize, useIQV, useVectIQV,
             normalizeBeforeCenter=normalizeBeforeCenter) 
+    print('makeImage done!')
     return image
 
 def makeImageList(centerFreqList, freqSweep, atten, freqWinSize, attenWinSize, useIQV, useVectIQV, normalizeBeforeCenter):
     image, _, _, = mlt.makeWPSImageList(freqSweep, centerFreqList, atten, freqWinSize, attenWinSize, useIQV, useVectIQV,
             normalizeBeforeCenter=normalizeBeforeCenter) 
+    print('makeImageList done!')
     return image
 
 def addResMagToWPSMap(wpsDict, freqSweep, outFile, freqWinSize=30, nRes=1500):
