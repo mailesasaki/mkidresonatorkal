@@ -103,7 +103,8 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
                 
                 #imageList[:nFreqsInChunk] = pool.map(processChunk, freqList, chunksize=chunkSize/N_CPU)
                 #pool = multiprocessing.Pool(processes=N_CPU)
-                imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                #imageList[:nFreqsInChunk] = np.vstack(pool.map(processChunk, freqLists, chunksize=len(freqLists)/N_CPU))
+                imageList[:nFreqsInChunk] = np.vstack(pool.map(print, np.arange(len(freqList), chunksize=len(freqLists)/N_CPU))
                 #pool.close()
                 pool.close()
                 pool.join()
