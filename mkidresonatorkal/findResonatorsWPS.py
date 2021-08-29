@@ -51,9 +51,11 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     if mlDict['useVectIQV']:
         nColors += 2
 
-    chunkSize = 5000#8000*N_CPU
+    chunkSize = 50000#8000*N_CPU
+    #previously 5000
     #subChunkSize = np.round(float(chunkSize)/N_CPU).astype(int)
-    subChunkSize = 200
+    subChunkSize = 2000
+    #previously 200
     imageList = np.zeros((chunkSize, mlDict['attenWinBelow'] + mlDict['attenWinAbove'] + 1, mlDict['freqWinSize'], nColors))
     labelsList = np.zeros((chunkSize, N_CLASSES))
     toneWinCenters = freqSweep.freqs[:, freqSweep.nlostep//2]
