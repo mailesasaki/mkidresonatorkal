@@ -1,6 +1,7 @@
 import wpsnnmkidkal2
 import mkidcore.config as config
 import argparse
+import os
 
 parser = argparse.ArgumentParser(description='ML model trainer')
 parser.add_argument('mlDict', help='yaml file containing mlDict information')
