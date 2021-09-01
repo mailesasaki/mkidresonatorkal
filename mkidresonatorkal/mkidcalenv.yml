@@ -1,4 +1,4 @@
-name: mkidcal
+name: mkidcal_new
 channels:
   - defaults
   - http://ssb.stsci.edu/astroconda
