@@ -25,7 +25,7 @@ from mkidresonatorkal.wpsnnmkidkal2 import N_CLASSES
 import mkidcore.instruments as inst
 
 N_RES_PER_BOARD = 1024
-N_CPU = 6
+N_CPU = 8
 
 def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     mlDict, new_model = mlt.get_ml_model(modelDir)
@@ -51,10 +51,10 @@ def makeWPSMap(modelDir, freqSweep, freqStep=None, attenClip=0):
     if mlDict['useVectIQV']:
         nColors += 2
 
-    chunkSize = 10000#8000*N_CPU
+    chunkSize = 12000#8000*N_CPU
     #previously 5000
     #subChunkSize = np.round(float(chunkSize)/N_CPU).astype(int)
-    subChunkSize = 400
+    subChunkSize = 500
     #previously 200
     imageList = np.zeros((chunkSize, mlDict['attenWinBelow'] + mlDict['attenWinAbove'] + 1, mlDict['freqWinSize'], nColors))
     labelsList = np.zeros((chunkSize, N_CLASSES))
