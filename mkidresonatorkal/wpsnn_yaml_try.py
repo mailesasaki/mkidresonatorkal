@@ -2,7 +2,7 @@
 Trains the model when given an mlDict file
 """
 
-import wpsnnmkidkal2
+import wpsnn_mkidml
 import mkidcore.config as config
 import argparse
 import os
@@ -19,5 +19,5 @@ mlDict_file = args.mlDict
 model_name = args.model_name
 mlDict = config.load(mlDict_file)
 
-trial1 = wpsnnmkidkal2.WPSNeuralNet(mlDict, model_name, mlDict_file)
+trial1 = wpsnn_mkidml.WPSNeuralNet(mlDict, model_name, mlDict_file)
 trial1.initializeAndTrainModel()
