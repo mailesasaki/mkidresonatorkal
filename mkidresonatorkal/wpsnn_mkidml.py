@@ -251,7 +251,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
-        plt.savefig('/home/msasaki/training_loss2.png')
+        plt.savefig('/home/msasaki/training_loss3.png')
         
         plt.close()
 
@@ -260,7 +260,7 @@ class WPSNeuralNet(object):
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy')
         plt.legend()
-        plt.savefig('/home/msasaki/training_accuracy2.png')
+        plt.savefig('/home/msasaki/training_accuracy3.png')
 
         model.save(model_name)
 
