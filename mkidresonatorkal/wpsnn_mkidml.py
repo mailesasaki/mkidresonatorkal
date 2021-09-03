@@ -264,7 +264,7 @@ class WPSNeuralNet(object):
 
         model.save(self.model_name)
 
-        return shutil.copyfile(self.mlDict_file, self.model_name+'mlDict_new.cfg')        
+        return shutil.copyfile(self.mlDict_file, self.model_name+'/mlDict_new.cfg')        
         
         tf.compat.v1.reset_default_graph()
         
