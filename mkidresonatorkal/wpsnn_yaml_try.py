@@ -19,5 +19,5 @@ mlDict_file = args.mlDict
 model_name = args.model_name
 mlDict = config.load(mlDict_file)
 
-trial1 = wpsnnmkidkal2.WPSNeuralNet(mlDict)
+trial1 = wpsnnmkidkal2.WPSNeuralNet(mlDict, model_name, mlDict_file)
 trial1.initializeAndTrainModel()
